@@ -28,7 +28,7 @@
     function Form(params) {
         this.model = params;
         this.create();
-    }
+    };
 
 
 
