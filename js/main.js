@@ -21,12 +21,14 @@
     function Popup(params) {
         this.title = params.title;
         this.model = params.model;
+        this.context = params.model.context;
         this.customCssClass = params.customCssClass;
         this.createHtml();
     };
 
     function Form(params) {
         this.model = params;
+        this.context = params.context;
         this.create();
     };
 
@@ -112,9 +114,13 @@
         this.popup = popup;
     }
 
+
+    
     Form.FieldTypes = {
         input: "input",
-        select: "select"
+        select: "select",
+        TaskButton: "TaskButton",
+        closeButton: "closeButton"
     }
 
     Form.prototype.create = function() {
@@ -127,7 +133,23 @@
                 fieldDOM = $("<input />", {
                     class: "popup__form-input"
                 });
-                form.append(field);
+                form.append(fieldDOM);
+            }
+            if(field.type == Form.FieldTypes.TaskButton) {
+                fieldDOM = $("<button />", {
+                    class: "popup__form-TaskButton"
+                });
+                form.append(fieldDOM);
+                fieldDOM.on("click", this.context.createNewTask.bind(this.context));
+            }
+            if(field.type == Form.FieldTypes.closeButton) {
+                fieldDOM = $("<a />", {
+                    class: "popup__form-closeButton",
+                    text:"x"
+                });
+                fieldDOM.on("click", 
+                    this.context.openedPopup.remove());
+                form.append(fieldDOM);
             }
         });
         this.form = form;
@@ -163,22 +185,19 @@
         },
 
         showCreateNewTaskPopup: function() {
-            // var nameInput = $("<input />", {
-            //     class: "new-task_name-input jsCreateNewTaskName"
-            // });
-            // var createButton = $("<input />", {
-            //     class: "new-task_submit-button",
-            //     value: "Create",
-            //     type: "Button"
-            // });
-
             var model = {
                 model: {
+                    context: this,
                     customCssClass: "task-list_new-task",
                     fields: [
                         {
                             type: Form.getFieldTypes().input
-
+                        },
+                        {
+                            type: Form.getFieldTypes().TaskButton
+                        },
+                        {
+                            type: Form.getFieldTypes().closeButton
                         }
                     ]
                 }                
@@ -186,37 +205,15 @@
 
             var popup = new Popup(model);
             popup.show();
-
-            // createButton.on("click", this.createNewTask.bind(this));
-            // content.append(nameInput);
-            // content.append(createButton);
-            //this.openPopup(content);
+            this.openedPopup = popup;
         },
 
         createNewTask: function() {
             var task = new Task({
-                title: this.openedPopup.find(".jsCreateNewTaskName").val()
+                title: this.openedPopup.popup.find(".popup__form-input").val()
             });
             this.TaskListHolder.add(task);
-            this.openedPopup.remove();
-        },
-
-        openPopup: function(content) {
-            var popup = $("<div />", {
-                class: "task-list_popup"
-            });
-            popup.append(content);
-            var closeButton = $("<a />", {
-                class: "task-list_popup-close-button",
-                text: "x"
-            });
-            popup.append(closeButton);
-            closeButton.on("click", function() {
-                popup.remove();
-            });
-            this.rootElement.append(popup);
-            popup.show();
-            this.openedPopup = popup;
+            this.openedPopup.popup.remove();
         },
 
         drawApplication: function() {
