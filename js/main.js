@@ -115,12 +115,13 @@
     }
 
 
-    
+
     Form.FieldTypes = {
         input: "input",
         select: "select",
         TaskButton: "TaskButton",
-        closeButton: "closeButton"
+        closeButton: "closeButton",
+        description: "description"
     }
 
     Form.prototype.create = function() {
@@ -135,6 +136,12 @@
                 });
                 form.append(fieldDOM);
             }
+            if(field.type == Form.FieldTypes.input) {
+                fieldDOM = $("<input />", {
+                    class: "popup__form-description"
+                });
+                form.append(fieldDOM);
+            } 
             if(field.type == Form.FieldTypes.TaskButton) {
                 fieldDOM = $("<button />", {
                     class: "popup__form-TaskButton"
@@ -147,10 +154,10 @@
                     class: "popup__form-closeButton",
                     text:"x"
                 });
-                fieldDOM.on("click", 
-                    this.context.openedPopup.remove());
+                // fieldDOM.on("click", 
+                //     this.context.openedPopup.remove());
                 form.append(fieldDOM);
-            }
+            } 
         });
         this.form = form;
     }
@@ -194,6 +201,9 @@
                             type: Form.getFieldTypes().input
                         },
                         {
+                            type: Form.getFieldTypes().description
+                        },
+                        {
                             type: Form.getFieldTypes().TaskButton
                         },
                         {
@@ -210,7 +220,8 @@
 
         createNewTask: function() {
             var task = new Task({
-                title: this.openedPopup.popup.find(".popup__form-input").val()
+                title: this.openedPopup.popup.find(".popup__form-input").val(),
+                description: this.openedPopup.popup.find(".popup__form-description").val()
             });
             this.TaskListHolder.add(task);
             this.openedPopup.popup.remove();
